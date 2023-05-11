@@ -17,7 +17,7 @@ app.use(helmet.contentSecurityPolicy({
 }));
 
 app.use(cors({
-    origin: 'http://localhost:5173', // replace with your frontend URL
+    origin: 'https://piyansh-cb-demo.onrender.com', // replace with your frontend URL
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'], // add headers that you want to allow
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // add HTTP methods that you want to allow
