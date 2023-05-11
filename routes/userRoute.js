@@ -8,6 +8,7 @@ import {
   resetPassword,
   getUserProfile,
   getWishList,
+  addToWishList,
   updatePassword,
   updateProfile,
   getUserDetails,
@@ -28,7 +29,9 @@ router.route('/password/reset/:token').put(resetPassword);
 
 router.route('/me').get(isAuthenticatedUser ,getUserProfile);
 
-router.route('/wishlist').get(isAuthenticatedUser, getWishList);
+router.route('/wishlist/add').put(isAuthenticatedUser, addToWishList);
+
+router.route('/wishlist/me').get(isAuthenticatedUser, getWishList);
 
 router.route('/me/save-address').put(isAuthenticatedUser, saveAddress);
 

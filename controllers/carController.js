@@ -142,46 +142,13 @@ const getAllCarsBySeller = async (req, res) => {
 };
 
 export { getAllCarsBySeller };
-
-// wish list of a user
-
-const addToWishList = async (req, res, next) => {
-  const { carId } = req.body;
-  const { _id } = req.user;
-  try {
-    const user = await User.findById(_id);
-    const alreadyInWishList = user.wishList.find((r) => r.toString() === carId.toString());
-    if(alreadyInWishList){
-      let user  = await User.findByIdAndUpdate(_id, { $pull: { wishList: carId } }, { new: true });
-      res.status(200).json({
-        success: true,
-        message: 'Car removed from wish list',
-      });
-    }
-    else{ 
-      let user = await User.findByIdAndUpdate(_id, { $push: { wishList: carId } }, { new: true });
-      
-      res.status(200).json({
-        success: true,
-        message: 'Car added to wish list',
-      });
-    }
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-};
-
-export { addToWishList };
     
 
 //Get car details
 
 const getCarDetails = async (req, res, next) => {
   try {
-    const car = await Car.findById(req.params.id).populate('user', ['name', 'email', 'avatar']).lean();
+    const car = await Car.findById(req.params.id).populate('user', ['name', 'email', 'avatar', 'wishlist']).lean();
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }

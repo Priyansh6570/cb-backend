@@ -156,10 +156,50 @@ export const getUserProfile = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Get WISHLIST of currently logged in user => /api/v1/me/wishlist
+// wish list of a user
+
+const addToWishList = async (req, res, next) => {
+  const { carId } = req.body;
+  const { _id } = req.user;
+  try {
+    const user = await User.findById(_id);
+    const alreadyInWishList = user.wishList.find((r) => r.toString() === carId.toString());
+    let userUpdate;
+
+    if (alreadyInWishList) {
+      // Remove the car from wishlist
+      userUpdate = await User.findByIdAndUpdate(_id, { $pull: { wishList: carId } }, { new: true });
+      res.status(200).json({
+        success: true,
+        message: 'Car removed from wish list',
+      });
+    } else {
+      // Add the car to wishlist
+      userUpdate = await User.findByIdAndUpdate(_id, { $push: { wishList: carId } }, { new: true });
+
+      res.status(200).json({
+        success: true,
+        message: 'Car added to wish list',
+      });
+    }
+
+    // Optional: You can send the updated wishlist back in the response if needed
+    const updatedWishlist = userUpdate.wishList;
+    // ...
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+
+export { addToWishList };
+
+// Get WISHLIST of currently logged in user => /api/v1/wishlist
 export const getWishList = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.user.id).populate('wishList');
-
   res.status(200).json({
     success: true,
     wishList: user.wishList,
