@@ -32,15 +32,11 @@ const approveCar = async (req, res, next) => {
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
-const carData = {
-  verified: req.body.verified,
-};
 
-    const approvedCar = await Car.findByIdAndUpdate(req.params.id, carData, {
-      new: true,
-      runValidators: true,
-      useFindAndModify: false,
-    });
+    car.verified = req.body.verified; 
+
+    const approvedCar = await car.save(); 
+
     res.status(200).json({
       success: true,
       approvedCar,
@@ -53,6 +49,7 @@ const carData = {
     });
   }
 };
+
 
 export { approveCar };
 
@@ -89,6 +86,7 @@ const getAllCars = async (req, res) => {
   
   try {
     const carCount = await Car.countDocuments({ verified }); // count the total number of verified cars
+    const notVerified = await Car.countDocuments({ verified: false }); // count the total number of not verified cars
 
     const apifeatures = new ApiFeatures(Car.find({ verified }), req.query)
       .search()
@@ -104,6 +102,7 @@ const getAllCars = async (req, res) => {
       cars,
       currentPage,
       totalPages,
+      notVerified,
       carCount,
       resPerPage,
     });
@@ -121,7 +120,7 @@ export { getAllCars };
 // Get all cars from a specific seller
 
 const getAllCarsBySeller = async (req, res) => {
-  const resperpage = 5;
+  const resperpage = 9;
   const carCount = await Car.countDocuments({user:req.params.userId});
 
   try {
@@ -148,7 +147,7 @@ export { getAllCarsBySeller };
 
 const getCarDetails = async (req, res, next) => {
   try {
-    const car = await Car.findById(req.params.id).populate('user', ['name', 'email', 'avatar', 'wishlist']).lean();
+    const car = await Car.findById(req.params.id).populate('user', ['name', 'email', 'avatar', 'wishlist', 'mobile']).lean();
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
@@ -169,31 +168,62 @@ export { getCarDetails };
 
 // Update car of a seller -- Admin
 
-const updateCar = async (req, res, next) => {
+// const updateCar = async (req, res, next) => {
 
-  try{
-    const car = await Car.findOneAndUpdate({ _id: req.params.car_id, user: req.params.user_id }, req.body, {
-    new: true,
-    runValidators: true,
-});
-if (!car) {
-    return res.status(404).json({
-      success: false,
-      message: 'Car not found or not owned by this seller',
-      });
+//   try{
+//     const car = await Car.findOneAndUpdate({ _id: req.params.car_id, user: req.params.user_id }, req.body, {
+//     new: true,
+//     runValidators: true,
+// });
+// if (!car) {
+//     return res.status(404).json({
+//       success: false,
+//       message: 'Car not found or not owned by this seller',
+//       });
+//       }
+//       res.status(200).json({
+//       success: true,
+//       car: car,
+//       message: 'Car updated successfully',
+//       });}
+//       catch (error) {
+//         res.status(400).json({
+//           success: false,
+//           error: error.message,
+//         });
+//       };
+//     };
+const updateCar = async (req, res, next) => {
+  try {
+    const car = await Car.findByIdAndUpdate(
+      req.params.car_id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
       }
-      res.status(200).json({
+    );
+
+    if (!car || car.user.toString() !== req.params.user_id) {
+      return res.status(404).json({
+        success: false,
+        message: 'Car not found or not owned by this seller',
+      });
+    }
+
+    res.status(200).json({
       success: true,
       car: car,
       message: 'Car updated successfully',
-      });}
-      catch (error) {
-        res.status(400).json({
-          success: false,
-          error: error.message,
-        });
-      };
-    };
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 //   try {
 //     let car = await Car.findById(req.params.car_id);
 //     if (!car) {

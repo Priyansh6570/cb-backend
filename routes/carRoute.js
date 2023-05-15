@@ -22,10 +22,10 @@ router.route('/car/:id').delete(isAuthenticatedUser, deleteCar);
 
 router.route('/car/:id').get(getCarDetails);
 
+// for later use 
+
 // router.route('/review').put(isAuthenticatedUser, createCarReview);
-
 // router.route('/reviews').get(getCarReviews);
-
 // router.route('/reviews').delete(isAuthenticatedUser, deleteReview);
 
 export default router;

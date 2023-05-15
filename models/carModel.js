@@ -88,35 +88,6 @@ const carSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // ratings: {
-  //     type: Number,
-  //     default: 0,
-  // },
-  // reviews: [
-  //     {
-  //         user: {
-  //             type: mongoose.Schema.ObjectId,
-  //             ref: 'User',
-  //             required: true,
-  //         },
-  //         name: {
-  //             type: String,
-  //             required: true,
-  //         },
-  //         rating: {
-  //             type: Number,
-  //             required: true,
-  //         },
-  //         comment: {
-  //             type: String,
-  //             required: true,
-  //         },
-  //     },
-  // ],
-  // numOfReviews: {
-  //     type: Number,
-  //     default: 0,
-  // },
 });
 
 export default mongoose.models.Car || mongoose.model('Car', carSchema);

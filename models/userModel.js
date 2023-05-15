@@ -30,10 +30,6 @@ const userSchema = new mongoose.Schema({
     minLength: [10, 'Your mobile number must be at least 10 characters'],
   },
 
-  address: {
-    type: String,
-  },
-
   avatar: [
     {
       public_id: {

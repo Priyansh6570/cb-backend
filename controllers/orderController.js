@@ -7,24 +7,16 @@ import catchAsyncErrors from "../middleware/catchAsyncError.js";
 export const newOrder = catchAsyncErrors(async (req, res, next) => {
   const {
     contactInfo,
-    orderCar,
-    // itemsPrice,
-    // taxPrice,
-    // shippingPrice,
-    // totalPrice,
+    orderCar
   } = req.body;
 
   const order = await Order.create({
     contactInfo,
     orderCar,
-    // paymentInfo,
-    // itemsPrice,
-    // taxPrice,
-    // shippingPrice,
-    // totalPrice,
-    // paidAt: Date.now(),
     user: req.user._id,
   });
+
+  console.log(order);
 
   res.status(201).json({
     success: true,
