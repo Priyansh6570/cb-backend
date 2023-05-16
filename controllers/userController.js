@@ -16,7 +16,7 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
     crop: "scale",
   });
     
-    const { name, email, password, mobile, role } = req.body;
+    const { name, email, password, mobile, role, address, dealershipName } = req.body;
 
   const user = await User.create({
     name,
@@ -24,6 +24,8 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
     password,
     mobile,
     role,
+    address,
+    dealershipName,
     avatar: {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
@@ -245,14 +247,17 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
   const newUserData = {
     name: req.body.name,
     email: req.body.email,
+    dealershipName: req.body.dealershipName,
+    address: req.body.address,
   };
 
-  if (req.body.avatar !== "") {
+  if (req.body.avatar && req.body.avatar !== "") {
     const user = await User.findById(req.user.id);
 
-    const imageId = user.avatar[0].public_id;
-
-    await cloudinary.v2.uploader.destroy(imageId);
+    if (user.avatar[0]) {
+      const imageId = user.avatar[0].public_id;
+      await cloudinary.v2.uploader.destroy(imageId);
+    }
 
     const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, { 
       folder: "avatars",
@@ -261,10 +266,12 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
       quality: 100,
     });
 
-    newUserData.avatar = [{
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    }];
+    newUserData.avatar = [
+      {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
+    ];
   }
 
   const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
@@ -277,6 +284,7 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
     success: true,
   });
 });
+
 
 
 // Get all users => /api/v1/admin/users
