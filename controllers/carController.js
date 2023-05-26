@@ -3,16 +3,49 @@ import User from '../models/userModel.js';
 import ErrorHandler from '../utils/errorHandler.js';
 // import catchAsyncError from '../middleware/catchAsyncError.js';
 import ApiFeatures from '../utils/apiFeatures.js';
+import cloudinary from 'cloudinary';
 
 // create car but not approved yet
-
 const createCar = async (req, res, next) => {
   try {
-    const car = await Car.create(req.body);
+    let images = [];
+
+    // Check if the image field is a string
+    if (typeof req.body.image === 'string') {
+      images.push(req.body.image);
+    } else {
+      // If it's an array of objects, assume it contains multiple images
+      images = req.body.image.map((imageObj) => imageObj.url);
+    }
+
+    const imagesLinks = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.v2.uploader.upload(images[i], {
+        folder: 'cars',
+      });
+
+      imagesLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+
+    req.body.images = imagesLinks;
+    req.body.user = req.user.id;
+
+    const carData = { ...req.body, user: req.user._id };
+
+    const car = await Car.create(carData);
+
+    // Decrease user's credit by 1
+    req.user.credit -= 1;
+    await req.user.save();
+
     res.status(201).json({
       success: true,
       car,
-      message: 'Car Sent for approval'
+      message: 'Car Sent for approval',
     });
   } catch (error) {
     res.status(400).json({
@@ -21,6 +54,7 @@ const createCar = async (req, res, next) => {
     });
   }
 };
+
 
 export { createCar };
 
@@ -60,7 +94,7 @@ const getAllPendingCars = async (req, res) => {
   const carCount = await Car.countDocuments({verified:false});
 
   try {
-    const apifeatures = new ApiFeatures(Car.find({verified:false}), req.query).search().filter().pagination(resperpage);
+    const apifeatures = new ApiFeatures(Car.find({verified:false}), req.query).pagination(resperpage);
     const cars = await apifeatures.query;
     res.status(200).json({
       success: true,
@@ -77,18 +111,23 @@ const getAllPendingCars = async (req, res) => {
 
 export { getAllPendingCars };
 
-// Get all cars that are approved by admin sort
- 
+
 const getAllCars = async (req, res) => {
   const resPerPage = 9; // results per page
   const currentPage = req.query.page || 1; // current page
-  const verified = true; // add a filter for verified cars, assuming this is what you 
-  
-  try {
-    const carCount = await Car.countDocuments({ verified }); // count the total number of verified cars
-    const notVerified = await Car.countDocuments({ verified: false }); // count the total number of not verified cars
 
-    const apifeatures = new ApiFeatures(Car.find({ verified }), req.query)
+  try {
+    const carCount = await Car.countDocuments({ verified: true });
+    const notVerified = await Car.countDocuments({ verified: false });
+
+    const keyword = req.query.keyword || [];
+
+    const apifeatures = new ApiFeatures(
+      Car.find({
+        verified: true,
+      }).populate('user', ['name', 'expireLimit', 'credit']).lean().sort({ createdAt: -1 }), // Sort by createdAt field in descending order (-1)
+      req.query
+    )
       .search()
       .filter()
       .pagination(resPerPage);
@@ -115,22 +154,27 @@ const getAllCars = async (req, res) => {
 };
 
 
+
+
 export { getAllCars };
 
 // Get all cars from a specific seller
 
 const getAllCarsBySeller = async (req, res) => {
-  const resperpage = 9;
-  const carCount = await Car.countDocuments({user:req.params.userId});
+  const resPerPage = 9;
+  const carCount = await Car.countDocuments({ user: req.params.userId });
 
   try {
-    const apifeatures = new ApiFeatures(Car.find({user:req.params.userId}), req.query).search().filter().pagination(resperpage);
+    const apifeatures = new ApiFeatures(
+      Car.find({ user: req.params.userId, verified: true }).sort({ createdAt: -1 }),
+      req.query
+    );
     const cars = await apifeatures.query;
     res.status(200).json({
       success: true,
       cars,
       carCount,
-      resperpage
+      resPerPage,
     });
   } catch (error) {
     res.status(400).json({
@@ -139,6 +183,7 @@ const getAllCarsBySeller = async (req, res) => {
     });
   }
 };
+
 
 export { getAllCarsBySeller };
     
@@ -166,37 +211,43 @@ const getCarDetails = async (req, res, next) => {
 
 export { getCarDetails };
 
-// Update car of a seller -- Admin
 
-// const updateCar = async (req, res, next) => {
-
-//   try{
-//     const car = await Car.findOneAndUpdate({ _id: req.params.car_id, user: req.params.user_id }, req.body, {
-//     new: true,
-//     runValidators: true,
-// });
-// if (!car) {
-//     return res.status(404).json({
-//       success: false,
-//       message: 'Car not found or not owned by this seller',
-//       });
-//       }
-//       res.status(200).json({
-//       success: true,
-//       car: car,
-//       message: 'Car updated successfully',
-//       });}
-//       catch (error) {
-//         res.status(400).json({
-//           success: false,
-//           error: error.message,
-//         });
-//       };
-//     };
 const updateCar = async (req, res, next) => {
   try {
+
+      // Images Start Here
+  let images = [];
+
+  if (typeof req.body.images === "string") {
+    images.push(req.body.images);
+  } else {
+    images = req.body.images;
+  }
+
+  if (images !== undefined) {
+    // Deleting Images From Cloudinary
+    for (let i = 0; i < car.images.length; i++) {
+      await cloudinary.v2.uploader.destroy(car.images[i].public_id);
+    }
+
+    const imagesLinks = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.v2.uploader.upload(images[i], {
+        folder: "cars",
+      });
+
+      imagesLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+
+    req.body.images = imagesLinks;
+  }
     const car = await Car.findByIdAndUpdate(
       req.params.car_id,
+      
       req.body,
       {
         new: true,
@@ -224,28 +275,6 @@ const updateCar = async (req, res, next) => {
   }
 };
 
-//   try {
-//     let car = await Car.findById(req.params.car_id);
-//     if (!car) {
-//       return next(new ErrorHandler('Car not found', 404));
-//     }
-//     car = await Car.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true,
-//       runValidators: true,
-//       useFindAndModify: false,
-//     });
-//     res.status(200).json({
-//       success: true,
-//       car,
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       success: false,
-//         error: error.message,
-//     });
-//   }
-// };
-
 export { updateCar };
 
 // Delete car -- Admin
@@ -256,6 +285,11 @@ const deleteCar = async (req, res, next) => {
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
+
+    
+    req.user.credit += 1;
+    await req.user.save();
+    
     await car.remove();
     res.status(200).json({
       success: true,

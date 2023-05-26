@@ -52,7 +52,7 @@ const carSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: [true, 'Please provide a price'],
-    maxlength: [10, 'Price cannot be more than 1,00,00,00,000'],
+    maxlength: [10, 'Price cannot be more than 10Crore'],
   },
   description: {
     type: String,

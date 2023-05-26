@@ -23,7 +23,9 @@
     "helmet": "^6.1.5",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.3",
+    "node-cron": "^3.0.2",
     "nodemailer": "^6.8.0",
+    "twilio": "^4.11.1",
     "validator": "^13.7.0"
   },
   "devDependencies": {

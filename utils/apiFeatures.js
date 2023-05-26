@@ -5,19 +5,43 @@ class ApiFeatures {
     }
 
     search() {
-        let keyword = this.queryString.keyword ? {
+        let keyword = this.queryString.keyword;
+      
+        if (!keyword) {
+          return this;
+        }
+      
+        if (Array.isArray(keyword)) {
+          keyword = {
+            $and: keyword.map((word) => ({
+              $or: [
+                { make: { $regex: word, $options: 'i' } },
+                { model: { $regex: word, $options: 'i' } },
+                { variant: { $regex: word, $options: 'i' } },
+                { city: { $regex: word, $options: 'i' } },
+                { color: { $regex: word, $options: 'i' } },
+                { RTO: { $regex: word, $options: 'i' } },
+              ],
+            })),
+          };
+        } else {
+          keyword = {
             $or: [
-                { make: { $regex: this.queryString.keyword, $options: 'i' } },
-                { model: { $regex: this.queryString.keyword, $options: 'i' } },
-                { varient: { $regex: this.queryString.keyword, $options: 'i' } }
-            ]
-        } : {};
-
+              { make: { $regex: keyword, $options: 'i' } },
+              { model: { $regex: keyword, $options: 'i' } },
+              { variant: { $regex: keyword, $options: 'i' } },
+              { city: { $regex: keyword, $options: 'i' } },
+              { color: { $regex: keyword, $options: 'i' } },
+              { RTO: { $regex: keyword, $options: 'i' } },
+            ],
+          };
+        }
+      
         this.query = this.query.find({ ...keyword });
         return this;
-    }
-
-
+      }
+      
+      
     filter() {
         const queryCopy = { ...this.queryString };
 

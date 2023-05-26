@@ -24,19 +24,24 @@ app.use(cors({
     optionsSuccessStatus: 200 // return 200 status code for preflight requests
   }));
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: '10mb'
+  }));
+  app.use(express.json({limit: '10mb'}));
 app.use(fileUpload());
 
 // Route Imports 
 import car from './routes/carRoute.js';
 import user from './routes/userRoute.js';
 import order from './routes/orderRoute.js';
+import subscription from './routes/subscriptionRoute.js';
 
 app.use('/api/v1', car);
 app.use('/api/v1', user);
 app.use('/api/v1', order);
+app.use('/api/v1', subscription);
 
 // Error Handler (last piece of middleware)
 app.use(errorMiddleware);

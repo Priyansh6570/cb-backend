@@ -1,29 +1,24 @@
 import express from "express";
 import {
   newOrder,
-  getSingleOrder,
-  myOrders,
   getAllOrders,
-  updateOrder,
   deleteOrder,
+  getOrder,
 } from "../controllers/orderController.js";
 const router = express.Router();
 
-import isAuthenticatedUser, {authorizeRoles } from '../middleware/authentication.js';
+import isAuthenticatedUser from '../middleware/authentication.js';
 
 router.route("/sellerContact/new").post(isAuthenticatedUser, newOrder);
 
-router.route("/order/:id").get(isAuthenticatedUser, getSingleOrder);
-
-router.route("/orders/me").get(isAuthenticatedUser, myOrders);
+router.route("/order/:id").get(isAuthenticatedUser, getOrder);
 
 router
-  .route("/admin/orders")
-  .get(isAuthenticatedUser, authorizeRoles("admin"), getAllOrders);
+  .route("/orders/:id")
+  .get(isAuthenticatedUser, getAllOrders);
 
 router
-  .route("/admin/order/:id")
-  .put(isAuthenticatedUser, authorizeRoles("admin"), updateOrder)
-  .delete(isAuthenticatedUser, authorizeRoles("admin"), deleteOrder);
+  .route("/order/:id")
+  .delete(isAuthenticatedUser, deleteOrder);
 
 export default router;

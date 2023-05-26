@@ -15,6 +15,7 @@ import {
   saveAddress,
   allUsers,
   updateUser,
+  updateCreditAndExpireLimit,
   deleteUser,
 } from '../controllers/userController.js';
 import isAuthenticatedUser, {authorizeRoles } from '../middleware/authentication.js';
@@ -39,11 +40,11 @@ router.route('/logout').get(logout);
 
 router.route('/password/update').put(isAuthenticatedUser, updatePassword);
 
-router.route('/me/update').put(isAuthenticatedUser, updateProfile);
+router.route('/me/update').put(isAuthenticatedUser, updateProfile); 
 
-router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin'), allUsers);
+router.route('/updateCreditAndExpireLimit').put(isAuthenticatedUser, authorizeRoles('admin'), updateCreditAndExpireLimit);
 
-//router.route('/user/:id/cars').get(isAuthenticatedUser, getUserCars);
+router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin'), allUsers); 
 
 router.route('/admin/user/:id').get(isAuthenticatedUser, getUserDetails).put(isAuthenticatedUser, authorizeRoles('admin'), updateUser).delete(isAuthenticatedUser, authorizeRoles('admin'), deleteUser);
 

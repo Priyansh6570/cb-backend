@@ -1,48 +1,16 @@
 import mongoose from 'mongoose';
 const orderSchema = new mongoose.Schema({
-   contactInfo: {
-     address: {
-        type: String,
-        required: true,
+    userOrder: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    city: {
-        type: String,
-        required: true,
+    carOrder: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Car',
+        required: true
     },
-    state: {
-        type: String,
-        required: true,
-    },
-    pincode: {
-        type: Number,
-        required: true,
-    },
-    phone: {
-        type: Number,
-        required: true,
-    }},
-    orderCar: [
-        {
-            name: {
-                type: String,
-                required: true,
-            },
-            image: {
-                type: String,
-                required: true,
-            },
-            price: {
-                type: Number,
-                required: true,
-            },
-            car: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Product',
-                required: true
-            }
-        }
-    ],
-    user: {
+    user : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true

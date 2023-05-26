@@ -2,21 +2,30 @@ import ErrorHandler from '../utils/errorHandler.js';
 import catchAsyncError from '../middleware/catchAsyncError.js';
 import Car from '../models/carModel.js';
 import User from '../models/userModel.js';
+import Subscription from '../models/SubscriptionModel.js';
 import sendToken from '../utils/jwtToken.js';
 import sendEmail from '../utils/sendEmail.js';
 import crypto from 'crypto';
 import cloudinary from 'cloudinary';
-
+import cron from 'node-cron';
+import mongoose from 'mongoose';
+ 
 // Register a user => /api/v1/register
 export const registerUser = catchAsyncError(async (req, res, next) => {
-  
   const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
     folder: "avatars",
-    width: 150,
+    width: 1920,
     crop: "scale",
   });
-    
-    const { name, email, password, mobile, role, address, dealershipName } = req.body;
+
+  const { name, email, password, mobile, role, address, dealershipName } = req.body;
+  let credit = 1;
+  let expireLimit = 30;
+
+  if (role === "dealer" || role === "broker") {
+    credit = 0;
+    expireLimit = 0;
+  }
 
   const user = await User.create({
     name,
@@ -30,10 +39,13 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
       public_id: myCloud.public_id,
       url: myCloud.secure_url,
     },
+    credit,
+    expireLimit,
   });
 
   sendToken(user, 201, res);
 });
+
 
 // Login user => /api/v1/login
 export const loginUser = catchAsyncError(async (req, res, next) => {
@@ -160,7 +172,6 @@ export const getUserProfile = catchAsyncError(async (req, res, next) => {
 });
 
 // wish list of a user
-
 const addToWishList = async (req, res, next) => {
   const { carId } = req.body;
   const { _id } = req.user;
@@ -196,8 +207,6 @@ const addToWishList = async (req, res, next) => {
     });
   }
 };
-
-
 export { addToWishList };
 
 // Get WISHLIST of currently logged in user => /api/v1/wishlist
@@ -220,7 +229,6 @@ export const saveAddress = catchAsyncError(async (req, res, next) => {
     success: true,
   });
 });
-
 
 // Update / Change password => /api/v1/password/update
 export const updatePassword = catchAsyncError(async (req, res, next) => {
@@ -261,9 +269,8 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
 
     const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, { 
       folder: "avatars",
-      width: 150,
+      width: 1920,
       crop: "scale",
-      quality: 100,
     });
 
     newUserData.avatar = [
@@ -284,8 +291,6 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
     success: true,
   });
 });
-
-
 
 // Get all users => /api/v1/admin/users
 export const allUsers = catchAsyncError(async (req, res, next) => {
@@ -342,6 +347,63 @@ export const updateUser = catchAsyncError(async (req, res, next) => {
   });
 });
 
+// Update credit and expireLimit Admin => /api/v1/admin/updateCreditAndExpireLimit
+export const updateCreditAndExpireLimit = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.body.userId)) {
+      throw new Error('Invalid userId');
+    }
+
+    const user = await User.findById(mongoose.Types.ObjectId(req.body.userId));
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const userCarsCount = await Car.countDocuments({ user: user._id });
+
+    // Subtract userCarsCount from the updatedCredit
+    const updatedCredit = req.body.updatedCredit - userCarsCount;
+
+    // Make sure the updatedCredit doesn't go below 0
+    user.credit = Math.max(updatedCredit, 0);
+    user.expireLimit += req.body.expireTime;
+
+    // Check if credit and expireLimit are updated
+    const isUpdated = user.isModified('credit') || user.isModified('expireLimit');
+
+    await user.save();
+
+    if (isUpdated) {
+      // Update validate field in the subscription schema
+      const subscription = await Subscription.findOne({ userId: user._id });
+      if (subscription) {
+        subscription.validateSub = true;  // Set validate field to true
+        await subscription.save();
+      }
+    }
+
+    return user;
+  } catch (error) {
+    throw new Error(`Error updating credit and expireLimit: ${error.message}`);
+  }
+};
+// Automatically decrease expireLimit for users
+export const decreaseExpireLimit = async () => {
+  try {
+    // Fetch users with active credits
+    const users = await User.find({ expireLimit: { $gt: 0 } });
+
+    // Decrease expireLimit by 1 for each user
+    for (const user of users) {
+      user.expireLimit -= 1;
+      await user.save();
+    }
+  } catch (error) {
+    console.error('Error decreasing expireLimit:', error);
+  }
+};
+
 // Delete user Admin => /api/v1/admin/user/:id
 export const deleteUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.id);
@@ -358,4 +420,8 @@ export const deleteUser = catchAsyncError(async (req, res, next) => {
     success: true,
     message: 'User deleted successfully'
   });
+});
+
+cron.schedule('0 0 * * *', () => {
+  decreaseExpireLimit();
 });

@@ -55,6 +55,16 @@ const userSchema = new mongoose.Schema({
     default: 'user',
   },
 
+  credit: {
+    type: Number,
+    default: 1,
+  },
+
+  expireLimit: {
+    type : Number,
+    default : 30,
+  },
+
   wishList: [
     {
       type: mongoose.Schema.ObjectId,
