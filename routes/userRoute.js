@@ -42,10 +42,10 @@ router.route('/password/update').put(isAuthenticatedUser, updatePassword);
 
 router.route('/me/update').put(isAuthenticatedUser, updateProfile); 
 
-router.route('/updateCreditAndExpireLimit').put(isAuthenticatedUser, authorizeRoles('admin'), updateCreditAndExpireLimit);
+router.route('/updateCreditAndExpireLimit').put(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), updateCreditAndExpireLimit);
 
-router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin'), allUsers); 
+router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), allUsers); 
 
-router.route('/admin/user/:id').get(isAuthenticatedUser, getUserDetails).put(isAuthenticatedUser, authorizeRoles('admin'), updateUser).delete(isAuthenticatedUser, authorizeRoles('admin'), deleteUser);
+router.route('/admin/user/:id').get(getUserDetails).put(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), updateUser).delete(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), deleteUser);
 
 export default router;

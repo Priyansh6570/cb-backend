@@ -1,22 +1,22 @@
-// import twilio from 'twilio';
+import twilio from 'twilio';
+// Function to send a WhatsApp message
+const sendWhatsappAlert = async (to, message) => {
+  try {
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// const accountSid = process.env.TWILIO_ACCOUNT_SID;
-// const authToken = process.env.TWILIO_AUTH_TOKEN;
-// const twilioNumber = process.env.TWILIO_MOBILE_NUMBER;
+    await client.messages.create({
+      body: message,
+      from: `whatsapp:${process.env.TWILIO_MOBILE_NUMBER}`,
+      to: `whatsapp:${to}`,
+    });
 
-// const client = twilio(accountSid, authToken);
+    console.log('WhatsApp message sent successfully');
+  } catch (error) {
+    console.error('Error sending WhatsApp message:', error);
+  }
+};
 
-// const sendWhatsappAlert = async (options) => {
-//   try {
-//     const message = await client.messages.create({
-//       body: options.message,
-//       from: 'whatsapp:+14155238886', // Use the Twilio number with the 'whatsapp:' prefix
-//       to: options.phone,
-//     });
-//     return message;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+export default sendWhatsappAlert;
 
-// export default sendWhatsappAlert;
+
+

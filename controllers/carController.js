@@ -23,15 +23,20 @@ const createCar = async (req, res, next) => {
     for (let i = 0; i < images.length; i++) {
       const result = await cloudinary.v2.uploader.upload(images[i], {
         folder: 'cars',
+        width: 1920,
+        crop: "scale",
       });
 
-      imagesLinks.push({
+      const imageLink = {
         public_id: result.public_id,
         url: result.secure_url,
-      });
+      };
+
+      imagesLinks.push(imageLink);
     }
 
-    req.body.images = imagesLinks;
+    // Modify the carData object to store the Cloudinary URL in the image field
+    req.body.image = imagesLinks;
     req.body.user = req.user.id;
 
     const carData = { ...req.body, user: req.user._id };
@@ -54,12 +59,9 @@ const createCar = async (req, res, next) => {
     });
   }
 };
-
-
 export { createCar };
 
 // Admin can approve the car submitted by a seller and are pending for approval.
-
 const approveCar = async (req, res, next) => {
   try {
     const car = await Car.findById(req.params.id);
@@ -83,12 +85,9 @@ const approveCar = async (req, res, next) => {
     });
   }
 };
-
-
 export { approveCar };
 
 // Get all cars pending for approval
-
 const getAllPendingCars = async (req, res) => {
   const resperpage = 6;
   const carCount = await Car.countDocuments({verified:false});
@@ -108,13 +107,12 @@ const getAllPendingCars = async (req, res) => {
     });
   }
 };
-
 export { getAllPendingCars };
 
 
 const getAllCars = async (req, res) => {
-  const resPerPage = 9; // results per page
-  const currentPage = req.query.page || 1; // current page
+  const resPerPage = 9;
+  const currentPage = req.query.page || 1;
 
   try {
     const carCount = await Car.countDocuments({ verified: true });
@@ -125,16 +123,16 @@ const getAllCars = async (req, res) => {
     const apifeatures = new ApiFeatures(
       Car.find({
         verified: true,
-      }).populate('user', ['name', 'expireLimit', 'credit']).lean().sort({ createdAt: -1 }), // Sort by createdAt field in descending order (-1)
+      }).populate('user', ['name', 'expireLimit', 'credit']).lean().sort({ createdAt: -1 }).allowDiskUse(true),
       req.query
     )
       .search()
       .filter()
       .pagination(resPerPage);
 
-    const cars = await apifeatures.query; // get the cars for the current page
+    const cars = await apifeatures.query;
 
-    const totalPages = Math.ceil(carCount / resPerPage); // calculate the total number of pages
+    const totalPages = Math.ceil(carCount / resPerPage);
 
     res.status(200).json({
       success: true,
@@ -152,10 +150,6 @@ const getAllCars = async (req, res) => {
     });
   }
 };
-
-
-
-
 export { getAllCars };
 
 // Get all cars from a specific seller
@@ -166,7 +160,7 @@ const getAllCarsBySeller = async (req, res) => {
 
   try {
     const apifeatures = new ApiFeatures(
-      Car.find({ user: req.params.userId, verified: true }).sort({ createdAt: -1 }),
+      Car.find({ user: req.params.userId }).sort({ createdAt: -1 }),
       req.query
     );
     const cars = await apifeatures.query;
@@ -183,8 +177,6 @@ const getAllCarsBySeller = async (req, res) => {
     });
   }
 };
-
-
 export { getAllCarsBySeller };
     
 
@@ -192,7 +184,7 @@ export { getAllCarsBySeller };
 
 const getCarDetails = async (req, res, next) => {
   try {
-    const car = await Car.findById(req.params.id).populate('user', ['name', 'email', 'avatar', 'wishlist', 'mobile']).lean();
+    const car = await Car.findById(req.params.id).populate('user', ['name', 'avatar', 'mobile', 'role', 'city', 'address', 'dealershipName', 'tagline']).lean();
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
@@ -208,7 +200,6 @@ const getCarDetails = async (req, res, next) => {
     });
   }
 };
-
 export { getCarDetails };
 
 
@@ -274,7 +265,6 @@ const updateCar = async (req, res, next) => {
     });
   }
 };
-
 export { updateCar };
 
 // Delete car -- Admin
@@ -285,8 +275,6 @@ const deleteCar = async (req, res, next) => {
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
-
-    
     req.user.credit += 1;
     await req.user.save();
     
@@ -302,7 +290,6 @@ const deleteCar = async (req, res, next) => {
     });
   }
 };
-
 export { deleteCar };
 
 // Create new review => /api/v1/review

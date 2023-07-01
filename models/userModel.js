@@ -38,6 +38,18 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
+  tagLine : {
+    type: String,
+  },
+
+  city : {
+    type: String,
+  },
+
+  planType : {
+    type: String,
+  },
+
   avatar: [
     {
       public_id: {

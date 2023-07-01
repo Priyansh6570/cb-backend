@@ -43,7 +43,7 @@ const carSchema = new mongoose.Schema({
   },
   RTO: {
     type: String,
-    required: [true, 'Please provide car RTO'],
+    required: [true, 'Please provide car RTO']
   },
   city: {
     type: String,
@@ -83,6 +83,10 @@ const carSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: true,
+  },
+  showMobile: {
+    type: Boolean,
+    default: true,
   },
   verified: {
     type: Boolean,

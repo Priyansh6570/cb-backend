@@ -6,8 +6,8 @@ import Subscription from "../models/SubscriptionModel.js";
 
 // Create new Subscription
 export const newSubscription = catchAsyncErrors(async (req, res, next) => {
-    const { userId, planName, planPrice, planDuration, planCredits, planDescription } = req.body;
-
+    const { userId, planName, planPrice, planDuration, planCredits, planDescription, planType, city, address, dealershipName, tagline, role } = req.body;
+    await User.findByIdAndUpdate(userId, { city, address, dealershipName, tagline, role, planType });
     const subscription = await Subscription.create({ userId, planName, planPrice, planDuration, planCredits, planDescription });
 
     res.status(201).json({
@@ -17,11 +17,9 @@ export const newSubscription = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-
-
 // Get All Subscriptions
 export const getAllSubscriptions = catchAsyncErrors(async (req, res, next) => {
-    const subscriptions = await Subscription.find({validateSub : false}).populate('userId', ['name' ,'dealershipName', 'credit', 'expireLimit', 'email', 'avatar', 'role', 'mobile', 'address']).sort({ createdAt: -1 });
+    const subscriptions = await Subscription.find({validateSub : false}).populate('userId', ['name' ,'dealershipName', 'credit', 'expireLimit', 'role', 'mobile', 'address', 'city', 'tagLine']).sort({ createdAt: -1 });
 
     res.status(200).json({
         success: true,

@@ -8,13 +8,13 @@ const router = express.Router();
 
 router.route('/cars').get(getAllCars);
 
-router.route('/:userId/cars').get(isAuthenticatedUser, getAllCarsBySeller);
+router.route('/:userId/cars').get(getAllCarsBySeller);
 
-router.route('/cars/pending').get(isAuthenticatedUser, authorizeRoles('admin'), getAllPendingCars);
+router.route('/cars/pending').get(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), getAllPendingCars);
 
 router.route('/:id/car/new').post(isAuthenticatedUser, createCar);
 
-router.route('/cars/pending/:id').put(isAuthenticatedUser, authorizeRoles('admin'), approveCar);
+router.route('/cars/pending/:id').put(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), approveCar);
 
 router.route('/:user_id/car/:car_id').put(isAuthenticatedUser, checkCarOwnership,  updateCar);
 

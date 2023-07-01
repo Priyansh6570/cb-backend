@@ -19,6 +19,9 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    offer : {
+        type: Number,
+    },
 });
 
 export default mongoose.model('Order', orderSchema);
