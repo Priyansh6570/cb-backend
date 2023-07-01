@@ -19,12 +19,13 @@ app.use(helmet.contentSecurityPolicy({
   nonce: '123abc'
 }));
 
+// Enable CORS for your frontend domain
 app.use(cors({
-  origin: 'http://localhost:5173', // replace with your frontend URL
+  origin: 'https://carsbecho.com',
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'], // add headers that you want to allow
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // add HTTP methods that you want to allow
-  optionsSuccessStatus: 200 // return 200 status code for preflight requests
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  optionsSuccessStatus: 200
 }));
 
 app.use(cookieParser());
@@ -48,10 +49,10 @@ app.use('/api/v1', subscription);
 
 // Serve static assets if in production
 const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, 'public_html')));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.resolve(__dirname, 'public_html/index.html'));
 });
 
 // Error Handler (last piece of middleware)
