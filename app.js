@@ -22,6 +22,7 @@ app.use(helmet.contentSecurityPolicy({
 // Enable CORS for your frontend domain
 app.use(cors({
   origin: 'https://carsbecho.com',
+  // origin: 'http://localhost:5173',
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],

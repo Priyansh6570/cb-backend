@@ -24,7 +24,7 @@ const createCar = async (req, res, next) => {
       const result = await cloudinary.v2.uploader.upload(images[i], {
         folder: 'cars',
         width: 1920,
-        crop: "scale",
+        crop: 'scale',
       });
 
       const imageLink = {
@@ -51,6 +51,7 @@ const createCar = async (req, res, next) => {
       success: true,
       car,
       message: 'Car Sent for approval',
+      user: req.user,
     });
   } catch (error) {
     res.status(400).json({
@@ -59,7 +60,9 @@ const createCar = async (req, res, next) => {
     });
   }
 };
+
 export { createCar };
+
 
 // Admin can approve the car submitted by a seller and are pending for approval.
 const approveCar = async (req, res, next) => {

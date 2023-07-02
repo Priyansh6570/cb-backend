@@ -12,13 +12,25 @@ import mongoose from 'mongoose';
  
 // Register a user => /api/v1/register
 export const registerUser = catchAsyncError(async (req, res, next) => {
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-    folder: "avatars",
-    width: 1920,
-    crop: "scale",
-  });
+  let avatar = {
+    public_id: "default_avatar",
+    url: "https://res.cloudinary.com/dtwkhnkns/image/upload/v1688298076/avatars/man_p7cnjn.png",
+  };
 
-  const { name, email, password, mobile, role} = req.body;
+  if (req.body.avatar) {
+    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      folder: "avatars",
+      width: 800,
+      crop: "scale",
+    });
+
+    avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    };
+  }
+
+  const { name, email, password, mobile, role } = req.body;
   let credit = 1;
   let expireLimit = 30;
 
@@ -28,16 +40,14 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
     password,
     mobile,
     role,
-    avatar: {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    },
+    avatar,
     credit,
     expireLimit,
   });
 
   sendToken(user, 201, res);
 });
+
 
 // Login user => /api/v1/login
 export const loginUser = catchAsyncError(async (req, res, next) => {
@@ -260,7 +270,7 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
 
     const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, { 
       folder: "avatars",
-      width: 1920,
+      width: 800,
       crop: "scale",
     });
 
