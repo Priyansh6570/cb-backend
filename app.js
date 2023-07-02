@@ -21,12 +21,13 @@ app.use(helmet.contentSecurityPolicy({
 
 // Enable CORS for your frontend domain
 app.use(cors({
-  origin: 'https://www.carsbecho.com',
+  origin: ['https://www.carsbecho.com', 'https://carsbecho.com'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   optionsSuccessStatus: 200
 }));
+
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
