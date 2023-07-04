@@ -32,22 +32,27 @@ const userSchema = new mongoose.Schema({
 
   address: {
     type: String,
+    default: ''
   },
 
   dealershipName : {
     type: String,
+    default: ''
   },
 
   tagLine : {
     type: String,
+    default: ''
   },
 
   city : {
     type: String,
+    default: ''
   },
 
   planType : {
     type: String,
+    default: ''
   },
 
   avatar: [
