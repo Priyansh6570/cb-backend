@@ -92,11 +92,10 @@ export { approveCar };
 
 // Get all cars pending for approval
 const getAllPendingCars = async (req, res) => {
-  const resperpage = 6;
   const carCount = await Car.countDocuments({verified:false});
 
   try {
-    const apifeatures = new ApiFeatures(Car.find({verified:false}), req.query).pagination(resperpage);
+    const apifeatures = new ApiFeatures(Car.find({verified:false}), req.query);
     const cars = await apifeatures.query;
     res.status(200).json({
       success: true,

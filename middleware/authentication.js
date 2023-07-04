@@ -5,43 +5,49 @@ import User from "../models/userModel.js";
 import Car from "../models/carModel.js";
 
 
+
+// const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
+//     const { token } = req.cookies;
+//     if (!token) {
+//         return next(new ErrorHandler('Login first to access this resource', 401));
+//     }
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.user = await User.findById(decoded.id);
+
+//     next();}
+// );
+// export default isAuthenticatedUser;
+
 const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-    const { token } = req.cookies;
-    if (!token) {
-        return next(new ErrorHandler('Login first to access this resource', 401));
-    }
+
+  let token;
+  
+  // Check for token in cookies
+  if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
+  
+  // If token not found in cookies, check local storage
+  if (!token && localStorage.getItem('token')) {
+    token = localStorage.getItem('token');
+  }
+  
+  if (!token) {
+    return next(new ErrorHandler('Login first to access this resource', 401));
+  }
+  
+  try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
+  
+    next();
+  } catch (error) {
+    return next(new ErrorHandler('Invalid token', 401));
+  }
+});
 
-    next();}
-);
+
 export default isAuthenticatedUser;
-// const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-//   let token;
-
-//   // Check for token in cookies
-//   if (req.cookies && req.cookies.token) {
-//     token = req.cookies.token;
-//   }
-
-//   try {
-//     if (token) {
-//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//       if (decoded && decoded.id) {
-//         req.user = await User.findById(decoded.id);
-//       } else {
-//         throw new Error('Invalid token');
-//       }
-//     }
-
-//     next();
-//   } catch (error) {
-//     return next(new ErrorHandler('Invalid token', 401));
-//   }
-// });
-
-
-// export default isAuthenticatedUser;
 
 
 const authorizeRoles = (...roles) => {
