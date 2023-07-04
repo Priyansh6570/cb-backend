@@ -37,15 +37,19 @@ const createCar = async (req, res, next) => {
 
     // Modify the carData object to store the Cloudinary URL in the image field
     req.body.image = imagesLinks;
-    req.body.user = req.user.id;
 
-    const carData = { ...req.body, user: req.user._id };
+    const carData = { ...req.body, user: req.params.id };
 
     const car = await Car.create(carData);
 
     // Decrease user's credit by 1
-    req.user.credit -= 1;
-    await req.user.save();
+    // find user by id
+
+    const user = await User.findById(req.params.id);
+
+    user.credit -= 1;
+
+    await user.save();
 
     res.status(201).json({
       success: true,
@@ -54,6 +58,7 @@ const createCar = async (req, res, next) => {
       user: req.user,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       success: false,
       error: error.message,
