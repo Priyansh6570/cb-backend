@@ -7,7 +7,11 @@ import bodyParser from 'body-parser';
 import fileUpload from 'express-fileupload';
 import path from 'path';
 
+// import csrf from 'csurf';
+
+
 const app = express();
+// app.use(csrf());
 
 app.use(helmet.contentSecurityPolicy({
   directives: {

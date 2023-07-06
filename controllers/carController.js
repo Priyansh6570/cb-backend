@@ -130,7 +130,7 @@ const getAllCars = async (req, res) => {
     const apifeatures = new ApiFeatures(
       Car.find({
         verified: true,
-      }).populate('user', ['name', 'expireLimit', 'credit']).lean().sort({ createdAt: -1 }).allowDiskUse(true),
+      }).populate('user', ['name', 'expireLimit', 'credit', 'role']).lean().sort({ createdAt: -1 }).allowDiskUse(true),
       req.query
     )
       .search()
@@ -212,40 +212,39 @@ export { getCarDetails };
 
 const updateCar = async (req, res, next) => {
   try {
+    // Images Start Here
+    let images = [];
 
-      // Images Start Here
-  let images = [];
-
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
-  }
-
-  if (images !== undefined) {
-    // Deleting Images From Cloudinary
-    for (let i = 0; i < car.images.length; i++) {
-      await cloudinary.v2.uploader.destroy(car.images[i].public_id);
+    if (typeof req.body.images === 'string') {
+      images.push(req.body.images);
+    } else if (Array.isArray(req.body.images)) { // Validate if it's an array
+      images = req.body.images;
     }
 
-    const imagesLinks = [];
+    if (Array.isArray(images)) { 
+      // Deleting Images From Cloudinary
+      for (let i = 0; i < Math.min(images.length, car.images.length); i++) {
+        await cloudinary.v2.uploader.destroy(car.images[i]?.public_id);
+      }
 
-    for (let i = 0; i < images.length; i++) {
-      const result = await cloudinary.v2.uploader.upload(images[i], {
-        folder: "cars",
-      });
+      const imagesLinks = [];
 
-      imagesLinks.push({
-        public_id: result.public_id,
-        url: result.secure_url,
-      });
+      for (let i = 0; i < images.length; i++) {
+        const result = await cloudinary.v2.uploader.upload(images[i], {
+          folder: 'cars',
+        });
+
+        imagesLinks.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
+      }
+
+      req.body.images = imagesLinks;
     }
 
-    req.body.images = imagesLinks;
-  }
     const car = await Car.findByIdAndUpdate(
       req.params.car_id,
-      
       req.body,
       {
         new: true,
@@ -272,7 +271,11 @@ const updateCar = async (req, res, next) => {
     });
   }
 };
+
 export { updateCar };
+
+
+
 
 // Delete car -- Admin
 

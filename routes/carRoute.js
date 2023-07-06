@@ -10,11 +10,11 @@ router.route('/cars').get(getAllCars);
 
 router.route('/:userId/cars').get(getAllCarsBySeller);
 
-router.route('/cars/pending').get(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), getAllPendingCars);
+router.route('/cars/pending').get(isAuthenticatedUser, authorizeRoles('admin', 'superUser', 'drm'), getAllPendingCars);
 
 router.route('/:id/car/new').post(createCar);
 
-router.route('/cars/pending/:id').put(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), approveCar);
+router.route('/cars/pending/:id').put(isAuthenticatedUser, authorizeRoles('admin', 'superUser', 'drm'), approveCar);
 
 router.route('/:user_id/car/:car_id').put(isAuthenticatedUser, checkCarOwnership,  updateCar);
 

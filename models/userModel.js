@@ -101,8 +101,12 @@ userSchema.pre('save', async function (next) {
     next();
   }
 
-  this.password = await bcrypt.hash(this.password, 10);
+  const salt = await bcrypt.genSalt(); // Generate a random salt
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
 });
+
 
 // JWT token
 userSchema.methods.getJwtToken = function () {

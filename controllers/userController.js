@@ -80,6 +80,7 @@ export const logout = catchAsyncError(async (req, res, next) => {
   res.cookie('token', null, {
     expires: new Date(Date.now()),
     httpOnly: true,
+    secure : true,
   });
 
   res.status(200).json({
@@ -180,29 +181,34 @@ export const addToWishList = async (req, res, next) => {
   const { _id } = req.user;
   try {
     const user = await User.findById(_id);
-    const alreadyInWishList = user.wishList.find((r) => r.toString() === carId.toString());
-    let userUpdate;
+    const alreadyInWishList = user.wishList.find((r) => r.toString() === carId.toString()); // line 184
 
-    if (alreadyInWishList) {
-      // Remove the car from wishlist
-      userUpdate = await User.findByIdAndUpdate(_id, { $pull: { wishList: carId } }, { new: true });
-      res.status(200).json({
-        success: true,
-        message: 'Car removed from wish list',
-      });
+    // Validate the type of 'alreadyInWishList' object before further processing
+    if (typeof alreadyInWishList === 'boolean') { // Check if it's a boolean type
+      let userUpdate;
+      if (alreadyInWishList) {
+        // Remove the car from wishlist
+        userUpdate = await User.findByIdAndUpdate(_id, { $pull: { wishList: carId } }, { new: true });
+        res.status(200).json({
+          success: true,
+          message: 'Car removed from wish list',
+        });
+      } else {
+        // Add the car to wishlist
+        userUpdate = await User.findByIdAndUpdate(_id, { $push: { wishList: carId } }, { new: true });
+
+        res.status(200).json({
+          success: true,
+          message: 'Car added to wish list',
+        });
+      }
+
+      // Optional: You can send the updated wishlist back in the response if needed
+      const updatedWishlist = userUpdate.wishList;
+      // ...
     } else {
-      // Add the car to wishlist
-      userUpdate = await User.findByIdAndUpdate(_id, { $push: { wishList: carId } }, { new: true });
-
-      res.status(200).json({
-        success: true,
-        message: 'Car added to wish list',
-      });
+      throw new Error('Invalid type for alreadyInWishList');
     }
-
-    // Optional: You can send the updated wishlist back in the response if needed
-    const updatedWishlist = userUpdate.wishList;
-    // ...
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -210,6 +216,8 @@ export const addToWishList = async (req, res, next) => {
     });
   }
 };
+
+
 
 // Get WISHLIST of currently logged in user => /api/v1/wishlist
 export const getWishList = catchAsyncError(async (req, res, next) => {

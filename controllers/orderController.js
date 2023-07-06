@@ -6,7 +6,7 @@ import catchAsyncErrors from "../middleware/catchAsyncError.js";
 import sendWhatsappAlert from "../utils/sendWhatsappAlert.js";
 // Create new Order
 export const newOrder = catchAsyncErrors(async (req, res, next) => {
-  const { userId, userOrderId, carOrderId, url, offer } = req.body;
+  const { userId, userOrderId, carOrderId, urls, offer } = req.body;
 
   const order = await Order.create({ user: userId, userOrder: userOrderId, carOrder: carOrderId, offer });
 
@@ -16,6 +16,8 @@ export const newOrder = catchAsyncErrors(async (req, res, next) => {
   await order.populate('carOrder', ['make', 'model', 'varient', 'year', 'Km_Driven', 'fuel', 'transmission', 'color', 'no_of_owners', 'RTO', 'city', 'price']);
 
   await order.populate('user', ['name', 'email', 'mobile', 'address', 'role']);
+
+  console.log(urls);
 
   const {
     mobile: userMobile,
@@ -49,58 +51,26 @@ export const newOrder = catchAsyncErrors(async (req, res, next) => {
 
   // message for seller
  const message = `
-Hi ${userOrderName},
+ Hi ${userOrderName},
 
-You have a new request from CarsBecho.
-
-You can reach out to ${userName} with contact no. ${userMobile} for
-${carYear} ${carMake} ${carModel} ${carVarient}.
-
-${carPrice} | ${carFuel} | ${carTransmission} 
-
-Team CarsBecho
+ You have a new lead from CarsBecho.
+ You can reach out to ${userName} with contact no. ${userMobile} for ${carYear} ${carMake} ${carModel}.
+ 
+ ${carPrice} | ${carFuel} | ${carTransmission}
+ 
+ Car Details : ${url}
+ 
+ Team CarsBecho
 `;
+
+
 
 //message for Admin
-const messageAdmin = `
-  CarsBecho Customer Request,
-
-  Here are Details :
-
-  Customer details:
-
-  Name: ${userName}
-  Mobile: ${userOrderMobile}
-  Email: ${userOrderEmail}
-  Address: ${userOrderAddress}
-
-  car Details :-
-
-  ${carMake} ${carModel} ${carVarient}
-
-  Price: ${carPrice}
-  Year: ${carYear}
-  Km Driven: ${carKm_Driven}
-  Fuel: ${carFuel}
-  Transmission: ${carTransmission}
-  Color: ${carColor}
-  No_of_owners: ${carNo_of_owners}
-  RTO: ${carRTO}
-  City: ${carCity}
-  
-  Seller Details:-
-
-  Name: ${userName}
-  Mobile: ${userMobile}
-  Email: ${userEmail}
-  Address: ${userAddress}
-  Role: ${userRole}
-  
-  CarsBecho
-`;
 
 // to mobile number with +91
 const userMobileWithCountryCode = `+91${userMobile}`;
+
+console.log(userMobileWithCountryCode);
 
 //Admin mobile number with +91
 // const adminMobileWithCountryCode = `+919755326570`;
