@@ -17,8 +17,6 @@ export const newOrder = catchAsyncErrors(async (req, res, next) => {
 
   await order.populate('user', ['name', 'email', 'mobile', 'address', 'role']);
 
-  console.log(urls);
-
   const {
     mobile: userMobile,
     name: userName,
@@ -68,7 +66,7 @@ export const newOrder = catchAsyncErrors(async (req, res, next) => {
 //message for Admin
 
 // to mobile number with +91
-const userMobileWithCountryCode = `+91${userMobile}`;
+const userMobileWithCountryCode = `+919755326570`;
 
 console.log(userMobileWithCountryCode);
 

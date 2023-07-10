@@ -6,7 +6,7 @@ const sendWhatsappAlert = async (to, message) => {
 
     await client.messages.create({
       body: message,
-      from: `whatsapp:${process.env.TWILIO_MOBILE_NUMBER}`,
+      from: `whatsapp:${+917869968564}`,
       to: `whatsapp:${to}`,
     });
 

@@ -127,15 +127,16 @@ const getAllCars = async (req, res) => {
 
     const keyword = req.query.keyword || [];
 
+    const skip = (currentPage - 1) * resPerPage;
+
     const apifeatures = new ApiFeatures(
       Car.find({
         verified: true,
-      }).populate('user', ['name', 'expireLimit', 'credit', 'role']).lean().sort({ createdAt: -1 }).allowDiskUse(true),
+      }).populate('user', ['name', 'expireLimit', 'credit', 'role']).lean().sort({ createdAt: -1 }).allowDiskUse(true).skip(skip).limit(resPerPage),
       req.query
     )
       .search()
-      .filter()
-      .pagination(resPerPage);
+      .filter();
 
     const cars = await apifeatures.query;
 
@@ -158,6 +159,7 @@ const getAllCars = async (req, res) => {
   }
 };
 export { getAllCars };
+
 
 // Get all cars from a specific seller
 
