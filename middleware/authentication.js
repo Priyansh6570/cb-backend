@@ -19,18 +19,8 @@ import Car from "../models/carModel.js";
 // export default isAuthenticatedUser;
 
 const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-
-  let token;
   
-  // Check for token in cookies
-  if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
-  }
-  
-  // If token not found in cookies, check local storage
-  if (!token && localStorage.getItem('token')) {
-    token = localStorage.getItem('token');
-  }
+  const { token } = req.cookies;
   
   if (!token) {
     return next(new ErrorHandler('Login first to access this resource', 401));

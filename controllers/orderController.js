@@ -68,8 +68,6 @@ export const newOrder = catchAsyncErrors(async (req, res, next) => {
 // to mobile number with +91
 const userMobileWithCountryCode = `+919755326570`;
 
-console.log(userMobileWithCountryCode);
-
 //Admin mobile number with +91
 // const adminMobileWithCountryCode = `+919755326570`;
 

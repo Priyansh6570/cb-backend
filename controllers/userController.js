@@ -381,7 +381,14 @@ export const updateCreditAndExpireLimit = async (req, res, next) => {
 
     // Make sure the updatedCredit doesn't go below 0
     user.credit = Math.max(updatedCredit, 0);
+
+
+    // check if expire time is 2 then set expireLimit to 2
+    if (req.body.expireTime === 2) {
+      user.expireLimit = req.body.expireTime;
+    } else {
     user.expireLimit += req.body.expireTime;
+    }
 
     // Check if credit and expireLimit are updated
     const isUpdated = user.isModified('credit') || user.isModified('expireLimit');
