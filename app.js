@@ -5,7 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import fileUpload from 'express-fileupload';
-import path from 'path';
+// import path from 'path';
 
 // import csrf from 'csurf';
 
@@ -53,12 +53,12 @@ app.use('/api/v1', order);
 app.use('/api/v1', subscription);
 
 // Serve static assets if in production
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, 'public_html')));
+// const __dirname = path.resolve();
+// app.use(express.static(path.join(__dirname, 'public_html')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'public_html/index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'public_html/index.html'));
+// });
 
 // Error Handler (last piece of middleware)
 app.use(errorMiddleware);

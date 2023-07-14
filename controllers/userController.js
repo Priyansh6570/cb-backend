@@ -80,7 +80,8 @@ export const logout = catchAsyncError(async (req, res, next) => {
   res.cookie('token', null, {
     expires: new Date(Date.now()),
     httpOnly: true,
-    secure : true,
+    sameSite: 'None',
+    secure: true,
   });
 
   res.status(200).json({
@@ -216,8 +217,6 @@ export const addToWishList = async (req, res, next) => {
     });
   }
 };
-
-
 
 // Get WISHLIST of currently logged in user => /api/v1/wishlist
 export const getWishList = catchAsyncError(async (req, res, next) => {
