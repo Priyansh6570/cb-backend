@@ -303,13 +303,34 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
 
 // Get all users => /api/v1/admin/users
 export const allUsers = catchAsyncError(async (req, res, next) => {
+  const userCity = req.user.city;
+
+  //all user
   const users = await User.find();
+
+  //based on role
+
+  const dealers = await User.find({ city: userCity, role: "dealer" });
+  const brokers = await User.find({ city: userCity, role: "broker" });
+  const userRole = await User.find({ city: userCity, role: "user" });
+
+  //based on planType
+  const dealersWithSilverPlan = await User.find({ city: userCity, role: "dealer", planType: "Silver" });
+  const dealersWithPremiumPlan = await User.find({ city: userCity, role: "dealer", planType: "Premium" });
+  const dealersWithPlatinumPlan = await User.find({ city: userCity, role: "dealer", planType: "Platinum" });
 
   res.status(200).json({
     success: true,
+    dealers,
+    brokers,
     users,
+    dealersWithSilverPlan,
+    dealersWithPremiumPlan,
+    dealersWithPlatinumPlan,
+    userRole,
   });
 });
+
 
 // Get user details => /api/v1/admin/user/:id
 export const getUserDetails = catchAsyncError(async (req, res, next) => {

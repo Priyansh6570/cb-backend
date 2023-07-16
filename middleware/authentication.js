@@ -5,36 +5,48 @@ import User from "../models/userModel.js";
 import Car from "../models/carModel.js";
 
 
-
 // const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-//     const { token } = req.cookies;
-//     if (!token) {
-//         return next(new ErrorHandler('Login first to access this resource', 401));
-//     }
+  
+//   const { token } = req.cookies;
+  
+//   if (!token) {
+//     return next(new ErrorHandler('Login first to access this resource', 401));
+//   }
+  
+//   try {
 //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 //     req.user = await User.findById(decoded.id);
-
-//     next();}
-// );
-// export default isAuthenticatedUser;
+  
+//     next();
+//   } catch (error) {
+//     return next(new ErrorHandler('Invalid token', 401));
+//   }
+// });
 
 const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-  
-  const { token } = req.cookies;
-  
-  if (!token) {
-    return next(new ErrorHandler('Login first to access this resource', 401));
+  let token;
+
+  // Check if the token exists in the request headers
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
+
+    if (!token) {
+        return next(new ErrorHandler('Login first to access this resource.', 401));
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id);
   
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-  
-    next();
-  } catch (error) {
-    return next(new ErrorHandler('Invalid token', 401));
-  }
-});
+      next();
+    } catch (error) {
+      return next(new ErrorHandler('Invalid token', 401));
+    }
+})
+
 
 
 export default isAuthenticatedUser;

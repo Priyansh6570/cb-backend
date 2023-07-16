@@ -276,9 +276,6 @@ const updateCar = async (req, res, next) => {
 
 export { updateCar };
 
-
-
-
 // Delete car -- Admin
 
 const deleteCar = async (req, res, next) => {
