@@ -1,18 +1,29 @@
 import twilio from 'twilio';
-// Function to send a WhatsApp message
 const sendWhatsappAlert = async (to, message) => {
   try {
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
     await client.messages.create({
-      body: message,
-      from: `whatsapp:${+917869968564}`,
+      contentSid: process.env.TWILIO_CONTENT_SID,
+      from: `whatsapp:${process.env.TWILIO_MOBILE_NUMBER}`,
+      contentVariables: JSON.stringify({
+        1: message.userOrderName,
+        2: message.userName,
+        3: message.userMobile,
+        4: message.carYear,
+        5: message.carMake,
+        6: message.carModel,
+        7: message.carPrice.toString(),
+        8: message.carFuel,
+        9: message.carTransmission,
+        10: message.carDetailsUrl
+      }),
+      messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID,
       to: `whatsapp:${to}`,
     });
 
     console.log('WhatsApp message sent successfully');
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
+    console.error('Error sending WhatsApp message:');
   }
 };
 

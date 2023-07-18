@@ -38,7 +38,7 @@ const carSchema = new mongoose.Schema({
     required: [true, 'Please provide car color'],
   },
   no_of_owners: {
-    type: Number,
+    type: String,
     required: [true, 'Please provide car no_of_owners'],
   },
   RTO: {
