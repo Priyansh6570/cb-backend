@@ -6,9 +6,9 @@ const sendWhatsappAlert = async (to, message) => {
       contentSid: process.env.TWILIO_CONTENT_SID,
       from: `whatsapp:${process.env.TWILIO_MOBILE_NUMBER}`,
       contentVariables: JSON.stringify({
-        1: message.userOrderName,
-        2: message.userName,
-        3: message.userMobile,
+        1: message.userName,
+        2: message.userOrderName,
+        3: message.userOrderMobile,
         4: message.carYear,
         5: message.carMake,
         6: message.carModel,
