@@ -20,12 +20,23 @@ const createCar = async (req, res, next) => {
 
     const imagesLinks = [];
 
+    // for (let i = 0; i < images.length; i++) {
+    //   const result = await cloudinary.v2.uploader.upload(images[i], {
+    //     folder: 'cars',
+    //     width: 1920,
+    //     crop: 'scale',
+    //   });
+
     for (let i = 0; i < images.length; i++) {
-      const result = await cloudinary.v2.uploader.upload(images[i], {
-        folder: 'cars',
-        width: 1920,
-        crop: 'scale',
-      });
+  const result = await cloudinary.v2.uploader.upload(images[i], {
+    folder: 'cars',
+    width: 1000, // Adjust the width to fit your website's design
+    crop: 'scale',
+    quality: 'auto:good', // Use an appropriate quality setting for JPEG images
+    fetch_format: 'auto', // Automatically select the best format (JPEG, PNG, WebP)
+    flags: 'progressive', // Enable progressive rendering for JPEG images
+    lazy: true, // Enable lazy loading
+  });
 
       const imageLink = {
         public_id: result.public_id,
