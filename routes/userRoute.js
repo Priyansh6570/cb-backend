@@ -44,8 +44,8 @@ router.route('/me/update').put(updateProfile);
 
 router.route('/updateCreditAndExpireLimit').put(authorizeRoles('admin', 'superUser', 'drm'), updateCreditAndExpireLimit);
 
-router.route('/admin/users').get(allUsers); 
+router.route('/admin/users').get(authorizeRoles('admin', 'superUser', 'drm'), allUsers); 
 
-router.route('/admin/user/:id').get(getUserDetails).put(updateUser).delete(deleteUser);
+router.route('/admin/user/:id').get(getUserDetails).put(authorizeRoles('admin', 'superUser'), updateUser).delete(authorizeRoles('admin', 'superUser'), deleteUser);
 
 export default router;
