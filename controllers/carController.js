@@ -127,7 +127,7 @@ const getAllPendingCars = async (req, res) => {
 };
 export { getAllPendingCars };
 
-
+// Get all cars
 const getAllCars = async (req, res) => {
   const resPerPage = 9;
   const currentPage = req.query.page || 1;
@@ -295,9 +295,21 @@ const deleteCar = async (req, res, next) => {
     if (!car) {
       return next(new ErrorHandler('Car not found', 404));
     }
+
+    // Delete car photos from Cloudinary
+    if (car.image && car.image.length > 0) {
+      for (const imageLink of car.image) {
+        // Extract the public_id from the image URL
+        const public_id = imageLink.public_id;
+
+        // Delete the image from Cloudinary
+        await cloudinary.v2.uploader.destroy(public_id);
+      }
+    }
+
     req.user.credit += 1;
     await req.user.save();
-    
+
     await car.remove();
     res.status(200).json({
       success: true,
@@ -310,6 +322,7 @@ const deleteCar = async (req, res, next) => {
     });
   }
 };
+
 export { deleteCar };
 
 // Create new review => /api/v1/review
