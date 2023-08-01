@@ -9,16 +9,16 @@ const router = express.Router();
 
 import isAuthenticatedUser from '../middleware/authentication.js';
 
-router.route("/sellerContact/new").post(isAuthenticatedUser, newOrder);
+router.route("/sellerContact/new").post(newOrder);
 
-router.route("/order/:id").get(isAuthenticatedUser, getOrder);
+router.route("/order/:id").get(getOrder);
 
 router
   .route("/orders/:id")
-  .get(isAuthenticatedUser, getAllOrders);
+  .get( getAllOrders);
 
 router
   .route("/order/:id")
-  .delete(isAuthenticatedUser, deleteOrder);
+  .delete(deleteOrder);
 
 export default router;
