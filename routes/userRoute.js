@@ -30,9 +30,9 @@ router.route('/password/forgot').post(forgotPassword);
 
 router.route('/password/reset/:token').put(resetPassword);
 
-router.route('/wishlist/add').put(addToWishList);
+router.route('/wishlist/add').put(isAuthenticatedUser, addToWishList);
 
-router.route('/wishlist/me').get(getWishList);
+router.route('/wishlist/me').get(isAuthenticatedUser, getWishList);
 
 router.route('/me/save-address').put(isAuthenticatedUser, saveAddress);
 
@@ -40,11 +40,11 @@ router.route('/logout').get(logout);
 
 router.route('/password/update').put(isAuthenticatedUser, updatePassword);
 
-router.route('/me/update').put(updateProfile); 
+router.route('/me/update').put(isAuthenticatedUser, updateProfile); 
 
 router.route('/updateCreditAndExpireLimit').put(isAuthenticatedUser, authorizeRoles('admin', 'superUser', 'drm'), updateCreditAndExpireLimit);
 
-router.route('/admin/users').get(authorizeRoles('admin', 'superUser', 'drm'), allUsers); 
+router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin', 'superUser', 'drm'), allUsers); 
 
 router.route('/admin/user/:id').get(getUserDetails).put(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), updateUser).delete(isAuthenticatedUser, authorizeRoles('admin', 'superUser'), deleteUser);
 
