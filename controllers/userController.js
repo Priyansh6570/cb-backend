@@ -303,23 +303,18 @@ export const updateProfile = catchAsyncError(async (req, res, next) => {
 
 // Get all users => /api/v1/admin/users
 export const allUsers = catchAsyncError(async (req, res, next) => {
-  // Retrieve userCity from req.user
   const userCity = req.user.city;
 
-  // Check if the city property exists in req.user
-  if (!userCity) {
-    return res.status(400).json({ success: false, message: 'City not provided in the request user object.' });
-  }
-
-  // All users
+  //all user
   const users = await User.find();
 
-  // Based on role
+  //based on role
+
   const dealers = await User.find({ city: userCity, role: "dealer" });
   const brokers = await User.find({ city: userCity, role: "broker" });
   const userRole = await User.find({ city: userCity, role: "user" });
 
-  // Based on planType
+  //based on planType
   const dealersWithSilverPlan = await User.find({ city: userCity, role: "dealer", planType: "Silver" });
   const dealersWithPremiumPlan = await User.find({ city: userCity, role: "dealer", planType: "Premium" });
   const dealersWithPlatinumPlan = await User.find({ city: userCity, role: "dealer", planType: "Platinum" });
@@ -335,7 +330,6 @@ export const allUsers = catchAsyncError(async (req, res, next) => {
     userRole,
   });
 });
-
 
 
 // Get user details => /api/v1/admin/user/:id
